@@ -19,14 +19,19 @@ const SECTION_CODE_AND_JUMP_TABLE: u8 = 6;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    if args.len() != 2 {
-        eprintln!("Usage: {} <file.pvm>", args[0]);
-        eprintln!("Converts PolkaVM blob format to JAM format in-place.");
-        process::exit(1);
-    }
 
-    let path = &args[1];
-    let data = fs::read(path).unwrap_or_else(|e| {
+    let (input_path, output_path) = match args.len() {
+        2 => (&args[1], args[1].clone()),
+        4 if args[2] == "-o" => (&args[1], args[3].clone()),
+        _ => {
+            eprintln!("Usage: {} <input.pvm> [-o <output.pvm>]", args[0]);
+            eprintln!("Converts PolkaVM blob format to JAM format.");
+            eprintln!("If -o is not specified, converts in-place.");
+            process::exit(1);
+        }
+    };
+
+    let data = fs::read(input_path).unwrap_or_else(|e| {
         eprintln!("Failed to read file: {}", e);
         process::exit(1);
     });
@@ -36,12 +41,12 @@ fn main() {
         process::exit(1);
     });
 
-    fs::write(path, &result).unwrap_or_else(|e| {
+    fs::write(&output_path, &result).unwrap_or_else(|e| {
         eprintln!("Failed to write file: {}", e);
         process::exit(1);
     });
 
-    eprintln!("Converted {} ({} -> {} bytes)", path, data.len(), result.len());
+    eprintln!("Converted {} -> {} ({} -> {} bytes)", input_path, output_path, data.len(), result.len());
 }
 
 fn convert(data: &[u8]) -> Result<Vec<u8>, &'static str> {
