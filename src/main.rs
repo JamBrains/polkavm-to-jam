@@ -45,8 +45,6 @@ fn main() {
         eprintln!("Failed to write file: {}", e);
         process::exit(1);
     });
-
-    eprintln!("Converted {} -> {} ({} -> {} bytes)", input_path, output_path, data.len(), result.len());
 }
 
 fn convert(data: &[u8]) -> Result<Vec<u8>, &'static str> {
