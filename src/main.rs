@@ -47,30 +47,30 @@ fn main() {
     });
 }
 
-fn convert(data: &[u8]) -> Result<Vec<u8>, &'static str> {
+fn convert(data: &[u8]) -> Result<Vec<u8>, String> {
     let mut cursor = data;
 
     // Check magic
     if cursor.len() < 4 || &cursor[..4] != MAGIC {
-        return Err("Invalid magic bytes");
+        return Err("Invalid magic bytes".into());
     }
     cursor = &cursor[4..];
 
     // Check version
     if cursor.is_empty() || cursor[0] != VERSION {
-        return Err("Invalid version");
+        return Err(format!("Invalid version: wanted #{} but got #{}", VERSION, cursor[0]));
     }
     cursor = &cursor[1..];
 
     // Read data length (u64 LE)
     if cursor.len() < 8 {
-        return Err("Missing data length");
+        return Err("Missing data length".to_string());
     }
     let data_len = u64::from_le_bytes(cursor[..8].try_into().unwrap()) as usize;
     cursor = &cursor[8..];
 
     if data_len != data.len() {
-        return Err("Data length mismatch");
+        return Err("Data length mismatch".to_string());
     }
 
     // Parse memory config section
@@ -102,10 +102,10 @@ fn convert(data: &[u8]) -> Result<Vec<u8>, &'static str> {
 
     // Validate sizes
     if ro_data.len() > ro_data_size {
-        return Err("RO data larger than declared size");
+        return Err("RO data larger than declared size".to_string());
     }
     if rw_data.len() > rw_data_size {
-        return Err("RW data larger than declared size");
+        return Err("RW data larger than declared size".to_string());
     }
 
     // Build JAM format output
