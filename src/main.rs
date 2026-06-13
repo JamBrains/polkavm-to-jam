@@ -10,7 +10,7 @@ use std::fs;
 use std::process;
 
 const MAGIC: &[u8] = b"PVM\0";
-const VERSION: u8 = 0;
+const VERSION: u8 = 3;
 
 const SECTION_MEM_CFG: u8 = 1;
 const SECTION_RO_DATA: u8 = 2;
